@@ -1,0 +1,6 @@
+# Build outputs
+*.pdf
+*.png
+
+# Typst binary
+typst-x86_64-unknown-linux-musl/
