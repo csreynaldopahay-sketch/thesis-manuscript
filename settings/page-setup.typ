@@ -20,7 +20,6 @@
     first-line-indent: 0.5in,
     justify: true,
     leading: 2em,
-    spacing: 2em,
   )
 
   set heading(numbering: "1.1")
