@@ -460,5 +460,274 @@ The output of this phase consists of:
 - Feature importance rankings from Random Forest
 - Cross-seed stability statistics
 
+== Phase 4: Integrated Framework Design
+
+An integrated analytical framework was developed to support reproducible, leakage-aware antimicrobial resistance pattern recognition. The framework follows a *three-layer architecture* consisting of a data layer, a processing layer, and a presentation layer.
+
+=== System Architecture
+
+#figure(
+  table(
+    columns: 3,
+    table.header[*Layer*][*Components*][*Function*],
+    [Data Layer], [Preprocessing pipeline, feature engineering modules], [Data cleaning, encoding, imputation, feature preparation],
+    [Processing Layer], [Clustering, supervised models, statistical analysis], [Pattern discovery, validation, co-resistance analysis],
+    [Presentation Layer], [Streamlit dashboard], [Visualization, exploration, and result interpretation],
+  ),
+  caption: [Integrated Framework Architecture],
+) <tab:integrated-framework-architecture>
+
+=== Pipeline Orchestration
+
+Pipeline orchestration was implemented through a *central command-line interface (CLI)* that controlled execution of all analytical stages. This design ensures modularity, reproducibility, and consistent parameter application across experiments.
+
+#figure(
+  table(
+    columns: 2,
+    table.header[*Command*][*Description*],
+    [`--pipeline`], [Execute full data preprocessing and clustering pipeline],
+    [`--validate`], [Run supervised validation and stability checks],
+    [`--analyze`], [Perform post-hoc statistical and regional analyses],
+    [`--viz`], [Generate all figures and plots],
+    [`--app`], [Launch interactive Streamlit dashboard],
+  ),
+  caption: [Pipeline Orchestration Commands],
+) <tab:pipeline-orchestration-commands>
+
+Reproducibility was enforced using *fixed random seeds*, centralized configuration files, and persistent storage of intermediate artifacts (e.g., linkage matrices, trained models, clustering assignments).
+
+=== Co-Resistance Analysis
+
+Antibiotic co-resistance patterns were quantified using the *phi coefficient (φ)*, calculated from binary resistance co-occurrence tables:
+
+$
+phi = (a d - b c) / sqrt((a+b)(c+d)(a+c)(b+d))
+$
+
+where $a$, $b$, $c$, and $d$ represent the counts in a 2×2 contingency table of resistance presence and absence between two antibiotics.
+
+#figure(
+  table(
+    columns: 3,
+    table.header[][*Antibiotic B: R*][*Antibiotic B: S*],
+    [Antibiotic A: R], [$a$], [$b$],
+    [Antibiotic A: S], [$c$], [$d$],
+  ),
+  caption: [Phi Coefficient Contingency Table Structure],
+) <tab:phi-coefficient-contingency-table>
+
+Antibiotic clustering based on co-resistance similarity was subsequently performed using hierarchical clustering with distance defined as $1 - phi$.
+
+=== Interactive Visualization Dashboard
+
+The Streamlit-based dashboard provides interactive exploration of resistance patterns through three primary views:
+
+#figure(
+  table(
+    columns: 2,
+    table.header[*View*][*Description*],
+    [Cluster Explorer], [Interactive dendrogram with selectable cut-points; cluster-level resistance heatmaps displaying mean resistance scores per antibiotic],
+    [Regional Distribution], [Geographic breakdown of cluster assignments with stacked bar charts showing proportional representation across regions and sites],
+    [Co-Resistance Network], [Interactive phi-coefficient heatmap with threshold filtering; hierarchically clustered antibiotic groupings],
+    [Isolate Browser], [Individual isolate lookup with complete resistance profile and metadata display],
+  ),
+  caption: [Dashboard Components],
+) <tab:dashboard-components>
+
+The dashboard enables users to:
+
+- Adjust dendrogram cut-height to explore clustering at different granularities
+- Filter isolates by region, source type, or species
+- Export visualizations and summary statistics
+- Compare resistance profiles across selected clusters
+
+== Phase 5: System Evaluation and Interpretation
+
+System performance was evaluated using a combination of *internal clustering metrics*, *supervised validation metrics*, and *controlled association analysis*.
+
+=== Clustering Evaluation Metrics
+
+#figure(
+  table(
+    columns: 3,
+    table.header[*Metric*][*Purpose*][*Interpretation*],
+    [Silhouette Score], [Cluster cohesion and separation], [Higher values indicate better-defined clusters],
+    [WCSS], [Cluster compactness], [Lower values indicate tighter clusters],
+    [Adjusted Rand Index], [Robustness across methods], [Higher values indicate greater stability],
+    [Jaccard Coefficient], [Bootstrap stability], [Higher values indicate membership consistency],
+    [Cluster Size Distribution], [Practical validity], [Minimum of 20 isolates per cluster],
+  ),
+  caption: [Clustering Evaluation Metrics],
+) <tab:clustering-evaluation-metrics>
+
+=== Supervised Validation Metrics
+
+#figure(
+  table(
+    columns: 2,
+    table.header[*Metric*][*Description*],
+    [Accuracy], [Overall classification correctness],
+    [Macro Precision], [Average precision across classes],
+    [Macro Recall], [Average recall across classes],
+    [Macro F1-score], [Balanced performance across classes],
+    [Confusion Matrix], [Per-class misclassification analysis],
+  ),
+  caption: [Supervised Validation Metrics],
+) <tab:supervised-validation-metrics>
+
+=== Association Analysis
+
+Associations between resistance clusters and metadata variables were evaluated using *Cramér's V*, computed as:
+
+$
+V = sqrt(chi^2 / (n dot min(r-1, c-1)))
+$
+
+where $chi^2$ is the chi-square statistic, $n$ is the sample size, and $r$ and $c$ are the dimensions of the contingency table.
+
+#figure(
+  table(
+    columns: 2,
+    table.header[*Cramér's V Value*][*Association Strength*],
+    [0.00 – 0.10], [Negligible],
+    [0.10 – 0.20], [Weak],
+    [0.20 – 0.40], [Moderate],
+    [0.40 – 0.60], [Relatively Strong],
+    [0.60 – 1.00], [Strong],
+  ),
+  caption: [Cramér's V Interpretation],
+) <tab:cramers-v-interpretation>
+
+=== Interpretation Protocol
+
+Interpretation followed a strict *post-hoc protocol* to maintain analytical integrity:
+
+1. Clusters were generated using resistance features only (Phase 2)
+2. Metadata were overlaid after clustering for descriptive analysis
+3. Statistical associations were reported using associational language only
+4. No causal claims were made regarding resistance emergence or transmission
+
+This protocol ensures that interpretive conclusions remain within the methodological scope of the study.
+
+== Implementation Details
+
+The analytical framework was implemented using *Python 3.9+* and widely adopted open-source scientific computing libraries. Computational requirements were modest and suitable for standard desktop or laptop hardware.
+
+#figure(
+  table(
+    columns: 2,
+    table.header[*Component*][*Specification*],
+    [Programming Language], [Python 3.9+],
+    [Data Processing], [pandas, numpy],
+    [Machine Learning], [scikit-learn],
+    [Statistical Analysis], [scipy],
+    [Visualization], [matplotlib, seaborn],
+    [Dashboard], [Streamlit],
+    [Version Control], [Git],
+  ),
+  caption: [Implementation Environment],
+) <tab:implementation-environment>
+
+=== Computational Pipeline
+
+The complete analytical pipeline is summarized in Algorithm 4.2:
+
+*Algorithm 4.2: Complete Analytical Pipeline*
+
+*Input:* Raw AST CSV files
+
+*Output:* Cluster assignments, validation metrics, dashboard
+
+*PHASE 1: Preprocessing*
+
+    1. Load and harmonize data from multiple sources
+
+    2. Parse isolate identifiers to extract metadata
+
+    3. Apply quality filters (70% antibiotic, 30% isolate thresholds)
+
+    4. Encode resistance values (S=0, I=1, R=2)
+
+    5. Impute missing values using median imputation
+
+    6. Compute derived features (MAR, MDR, Resistant Classes)
+
+    7. Separate feature matrix X from metadata matrix M
+
+*PHASE 2: Clustering*
+
+    8. Compute pairwise Euclidean distances
+
+    9. Perform hierarchical clustering (Ward's linkage)
+
+    10. Evaluate k=2 to k=10 using silhouette and WCSS
+
+    11. Apply practical constraints (minimum cluster size)
+
+    12. Select optimal k and assign cluster labels
+
+    13. Assess stability via ARI and bootstrap Jaccard
+
+*PHASE 3: Supervised Validation*
+
+    14. Split data (80/20 stratified, before preprocessing)
+
+    15. Train models (LR, RF, kNN) on training set
+
+    16. Evaluate on test set (accuracy, precision, recall, F1)
+
+    17. Extract feature importance from Random Forest
+
+    18. Repeat across multiple random seeds
+
+*PHASE 4: Analysis and Visualization*
+
+    19. Compute co-resistance phi coefficients
+
+    20. Calculate Cramér's V for cluster-metadata associations
+
+    21. Generate visualizations (dendrograms, heatmaps, bar plots)
+
+    22. Deploy Streamlit dashboard
+
+*Return:* Final cluster assignments, performance metrics, dashboard
+
+== Ethical Considerations
+
+This study involved the secondary analysis of environmental and aquaculture-associated bacterial isolates. No human subjects, clinical samples, or personal identifiers were included in the dataset. The dataset was anonymized prior to analysis, and all results are reported at an aggregate level. Ethical approval was therefore not required for this computational study.
+
+== Limitations
+
+The following methodological limitations are acknowledged:
+
+1. *Scope limitation:* The dataset represents the Water–Fish interface; direct human clinical isolates are not included, limiting generalizability to the full Water–Fish–Human nexus.
+
+2. *Temporal limitation:* The study analyzes a single cross-sectional dataset; temporal dynamics of resistance evolution cannot be assessed.
+
+3. *Imputation effects:* Median imputation may introduce bias for antibiotics with highly skewed resistance distributions.
+
+4. *Clustering assumptions:* Ward's linkage assumes spherical clusters and may not capture non-convex resistance pattern structures.
+
+5. *External validation:* Supervised validation assesses internal discriminative capacity but does not validate against external AMR surveillance datasets.
+
+== Chapter Summary
+
+This chapter presented a *comprehensive, leakage-aware methodology* for antimicrobial resistance pattern recognition using phenotypic AST data. The framework integrates unsupervised discovery, supervised validation, co-resistance analysis, and system-level evaluation while maintaining strict interpretive discipline.
+
+#figure(
+  table(
+    columns: 3,
+    table.header[*Phase*][*Objective Addressed*][*Key Outputs*],
+    [Phase 1], [SO1], [Cleaned, encoded, analysis-ready dataset],
+    [Phase 2], [SO2 (Part 1)], [Hierarchical resistance clusters with stability assessment],
+    [Phase 3], [SO2 (Part 2)], [Supervised validation and stability metrics],
+    [Phase 4], [SO3], [Integrated analytical framework and interactive dashboard],
+    [Phase 5], [SO4], [Quantitative evaluation and controlled interpretation],
+  ),
+  caption: [Methodology Summary],
+) <tab:methodology-summary>
+
+The methodology ensures that resistance patterns are discovered through objective, data-driven processes and that all interpretive statements remain within appropriate associational bounds. The integrated framework supports reproducible execution and interactive exploration of results.
+
 
 
