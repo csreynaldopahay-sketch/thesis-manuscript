@@ -329,5 +329,136 @@ The output of this phase consists of:
 
 These outputs form the basis for supervised validation and interpretation, while remaining independent of external biological or contextual labels during discovery.
 
+== Phase 3: Supervised Validation
+
+Supervised learning models were used solely to validate the discriminative capacity of the discovered resistance patterns. This phase implements leakage-safe train–test splitting, macro-averaged evaluation metrics, confusion matrix analysis, feature importance extraction, and cross-seed stability checks.
+
+=== Classification Tasks
+
+Two supervised classification tasks were designed to assess whether resistance patterns align with known biological categories:
+
+#figure(
+  table(
+    columns: 3,
+    table.header[*Task*][*Target Variable*][*Purpose*],
+    [Species Discrimination], [Bacterial species], [Assess if resistance fingerprints distinguish species],
+    [MDR Classification], [MDR status (0/1)], [Validate resistance-MDR relationship],
+  ),
+  caption: [Supervised Classification Tasks],
+) <tab:supervised-classification-tasks>
+
+=== Leakage-Safe Data Splitting
+
+To prevent information leakage between training and evaluation phases, the dataset was first partitioned into *training (80%) and test (20%) subsets* using stratified sampling to preserve class distributions. *Train–test splitting was performed prior to any preprocessing operations*, including missing value imputation and feature scaling.
+
+All preprocessing steps were fitted *exclusively on the training data*, and the learned parameters were subsequently applied unchanged to both the training and test sets. This ensured that statistical properties of the test data did not influence model training, thereby preventing optimistic bias in supervised evaluation metrics.
+
+=== Model Selection
+
+Three classifier families were selected to represent different learning paradigms:
+
+#figure(
+  table(
+    columns: 3,
+    table.header[*Model*][*Category*][*Rationale*],
+    [Logistic Regression], [Linear], [Baseline; interpretable coefficients],
+    [Random Forest], [Tree-based], [Nonlinear; feature importance via Gini impurity],
+    [k-Nearest Neighbors], [Distance-based], [Instance-based; consistency check against clustering],
+  ),
+  caption: [Supervised Model Selection],
+) <tab:supervised-model-selection>
+
+*Hyperparameter Configuration:*
+
+#figure(
+  table(
+    columns: 2,
+    table.header[*Model*][*Parameters*],
+    [Logistic Regression], [`max_iter=1000`, `solver='lbfgs'`],
+    [Random Forest], [`n_estimators=100`, `random_state=42`],
+    [k-Nearest Neighbors], [`n_neighbors=5`],
+  ),
+  caption: [Model Hyperparameters],
+) <tab:model-hyperparameters>
+
+=== Evaluation Metrics
+
+Performance was quantified using macro-averaged metrics to prevent class imbalance bias:
+
+==== Macro-Averaged Precision, Recall, F1
+
+$
+"Precision"_"macro" = 1 / (|C|) sum_(c in C) ("TP"_c) / ("TP"_c + "FP"_c)
+$
+
+$
+"Recall"_"macro" = 1 / (|C|) sum_(c in C) ("TP"_c) / ("TP"_c + "FN"_c)
+$
+
+$
+F_1 = (2 times "Precision" times "Recall") / ("Precision" + "Recall")
+$
+
+where $C$ is the set of classes and $"TP"$, $"FP"$, $"FN"$ are true positives, false positives, and false negatives respectively.
+
+==== Accuracy
+
+Overall classification correctness was measured as:
+
+$
+"Accuracy" = ("TP" + "TN") / ("TP" + "TN" + "FP" + "FN")
+$
+
+==== Confusion Matrix
+
+Per-class classification performance was visualized using confusion matrices to identify species-specific misclassification patterns.
+
+=== Feature Importance Extraction
+
+For Random Forest models, feature importance was extracted using Gini impurity:
+
+$
+"Importance"(f) = sum_(t in T) Delta G_t dot bb(1)[f_t = f]
+$
+
+where $Delta G_t$ is the decrease in Gini impurity at node $t$ when feature $f$ is used for splitting.
+
+*Language Discipline:* Feature importance reflects _associative_ relationships within the dataset. High importance indicates statistical association, not causal influence on resistance phenotype.
+
+=== Stability Across Random Seeds
+
+Model stability was validated across multiple random states to ensure that model performance was not dependent on a specific random initialization:
+
+*Algorithm 4.1: Cross-Seed Stability Check*
+
+*Input:* Dataset D, Model M, Seeds S = {42, 123, 456, 789, 1011}
+
+*Output:* Stability metrics (mean, standard deviation)
+
+For each seed s in S:
+
+    1. Set random state to s
+
+    2. Split D into train/test (80/20, stratified)
+
+    3. Train model M on training set
+
+    4. Evaluate on test set
+
+    5. Record performance metrics
+
+Return: mean(metrics), std(metrics)
+
+Low standard deviation across seeds indicates robust model performance.
+
+=== Phase 3 Output Summary
+
+The output of this phase consists of:
+
+- Classification performance metrics for each model and task
+- Confusion matrices for per-class analysis
+- Feature importance rankings from Random Forest
+- Cross-seed stability statistics
+
 
 
